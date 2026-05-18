@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: agent-in-api
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: RUN_JOBS_INLINE
+        value: true
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_URL_SYNC
+        sync: false
+      - key: DB_SSL_MODE
+        value: require
+      - key: REDIS_URL
+        sync: false
+      - key: CHROMA_PERSIST_DIR
+        value: /tmp/chroma_data
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: LANGFUSE_PUBLIC_KEY
+        sync: false
+      - key: LANGFUSE_SECRET_KEY
+        sync: false
+      - key: LANGFUSE_BASE_URL
+        value: https://jp.cloud.langfuse.com
+      - key: MAX_TOKENS_PER_JOB
+        value: 100000
+      - key: MAX_DOLLARS_PER_JOB
+        value: 1.00
+      - key: MAX_AGENT_ITERATIONS
+        value: 10
+      - key: FRONTEND_URL
+        value: https://agent-in-api.onrender.com

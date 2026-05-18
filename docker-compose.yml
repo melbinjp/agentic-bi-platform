@@ -1,0 +1,117 @@
+services:
+  api:
+    build: .
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    env_file:
+      - .env
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-DEBUG}
+      CHROMA_PERSIST_DIR: /app/chroma_data
+      # Force local compose services inside the container so .env is only used for local python script/cloud run
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/agent_in
+      DATABASE_URL_SYNC: postgresql://postgres:postgres@postgres:5432/agent_in
+      DB_SSL_MODE: disable
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/app/chroma_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: celery -A app.celery_app.celery_app worker --loglevel=info -c 1
+    env_file:
+      - .env
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-DEBUG}
+      CHROMA_PERSIST_DIR: /app/chroma_data
+      # Force local compose services inside the container so .env is only used for local python script/cloud run
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/agent_in
+      DATABASE_URL_SYNC: postgresql://postgres:postgres@postgres:5432/agent_in
+      DB_SSL_MODE: disable
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - chroma_data:/app/chroma_data
+    depends_on:
+      api:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "celery", "-A", "app.celery_app.celery_app", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  frontend:
+    build: .
+    command: streamlit run frontend/app.py --server.address=0.0.0.0 --server.port=8501 --server.fileWatcherType=poll
+    environment:
+      BACKEND_URL: http://api:8000/api/v1
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    depends_on:
+      api:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-agent_in}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-agent_in}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  # Local Redis for Celery broker/backend (mirrors Upstash usage online)
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  chroma_data:
+  postgres_data:

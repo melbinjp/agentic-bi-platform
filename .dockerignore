@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+.git
+.pytest_cache
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+chroma_data
+logs
+dist
+build

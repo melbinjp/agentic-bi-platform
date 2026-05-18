@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System Demo</title>
+    
+<style>
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Global Styles */
+html, body, [class*="css"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #d1d5db;
+    background-color: #0f0f1a;
+}
+
+/* Glassmorphism Card Base */
+.glass-card {
+    background: rgba(30, 30, 46, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+    border-color: #6c63ff;
+    box-shadow: 0 0 20px rgba(108, 99, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Agent Card */
+.agent-card {
+    background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
+    border: 1px solid #3a3a5e;
+    border-radius: 16px;
+    padding: 16px 24px;
+    margin: 8px 0;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.agent-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #6c63ff, #8b84ff);
+    opacity: 0;
+    transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.agent-card:hover {
+    border-color: #6c63ff;
+    transform: translateX(4px);
+    box-shadow: 0 0 20px rgba(108, 99, 255, 0.3);
+}
+
+.agent-card:hover::before {
+    opacity: 1;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.status-running {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.status-completed {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.status-failed {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.status-queued {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.status-pending {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.status-aborted {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+/* Metric Box */
+.metric-box {
+    background: #1e1e2e;
+    border-radius: 10px;
+    padding: 16px 24px;
+    text-align: center;
+    border: 1px solid #3a3a5e;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.metric-box:hover {
+    border-color: #6c63ff;
+    box-shadow: 0 0 20px rgba(108, 99, 255, 0.3);
+    transform: scale(1.02);
+}
+
+.metric-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #8b84ff;
+    line-height: 1.2;
+}
+
+.metric-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+/* Log Panel */
+.log-panel {
+    background: #0f0f1a;
+    border-radius: 10px;
+    padding: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: 'Courier New', 'Consolas', monospace;
+    border: 1px solid #3a3a5e;
+}
+
+.log-entry {
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 12px;
+    margin: 4px 0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.log-entry:hover {
+    background: #1e1e2e;
+}
+
+.log-INFO {
+    color: #60a5fa;
+}
+
+.log-WARN {
+    color: #f59e0b;
+}
+
+.log-ERROR {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Verdict Badges */
+.verdict-badge {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.verdict-APPROVED {
+    background: #064e3b;
+    color: #10b981;
+    border: 1px solid #059669;
+}
+
+.verdict-REJECTED {
+    background: #7f1d1d;
+    color: #ef4444;
+    border: 1px solid #dc2626;
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes checkmark {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(180deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-4px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(4px);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-checkmark {
+    animation: checkmark 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-shake {
+    animation: shake 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-fadeIn {
+    animation: fadeIn 250ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Scrollbar Styling */
+.log-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.log-panel::-webkit-scrollbar-track {
+    background: #1e1e2e;
+    border-radius: 6px;
+}
+
+.log-panel::-webkit-scrollbar-thumb {
+    background: #3a3a5e;
+    border-radius: 6px;
+    transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.log-panel::-webkit-scrollbar-thumb:hover {
+    background: #6c63ff;
+}
+
+/* Button Styles */
+.btn-primary {
+    background: linear-gradient(135deg, #6c63ff 0%, #4d45cc 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(108, 99, 255, 0.3);
+}
+
+.btn-secondary {
+    background: #2a2a3e;
+    color: #d1d5db;
+    border: 1px solid #3a3a5e;
+    border-radius: 10px;
+    padding: 8px 24px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-secondary:hover {
+    border-color: #6c63ff;
+    background: #3a3a5e;
+}
+
+/* Card Grid Layout */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin: 24px 0;
+}
+
+/* Divider */
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #3a3a5e, transparent);
+    margin: 24px 0;
+}
+
+/* Loading Skeleton */
+.skeleton {
+    background: linear-gradient(90deg, #1e1e2e 25%, #2a2a3e 50%, #1e1e2e 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+    border-radius: 6px;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Focus Styles for Accessibility */
+*:focus {
+    outline: 2px solid #6c63ff;
+    outline-offset: 2px;
+}
+
+/* Utility Classes */
+.text-primary { color: #6c63ff; }
+.text-success { color: #10b981; }
+.text-warning { color: #f59e0b; }
+.text-error { color: #ef4444; }
+.text-muted { color: #6b7280; }
+
+.bg-primary { background-color: #6c63ff; }
+.bg-success { background-color: #10b981; }
+.bg-warning { background-color: #f59e0b; }
+.bg-error { background-color: #ef4444; }
+
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+
+.text-xs { font-size: 11px; }
+.text-sm { font-size: 12px; }
+.text-base { font-size: 14px; }
+.text-lg { font-size: 18px; }
+.text-xl { font-size: 20px; }
+
+.rounded-sm { border-radius: 6px; }
+.rounded-md { border-radius: 10px; }
+.rounded-lg { border-radius: 16px; }
+.rounded-xl { border-radius: 24px; }
+
+.shadow-sm { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+.shadow-md { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); }
+.shadow-lg { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
+.shadow-glow { box-shadow: 0 0 20px rgba(108, 99, 255, 0.3); }
+</style>
+
+</head>
+<body style="padding: 2rem; background: #0f0f1a;">
+    <h1 style="color: #8b84ff; margin-bottom: 2rem;">
+        Design System Demo
+    </h1>
+    
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: #d1d5db; margin-bottom: 1rem;">
+            Status Badges
+        </h2>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <span class="status-running">⚡ RUNNING</span>
+            <span class="status-completed">✅ COMPLETED</span>
+            <span class="status-failed">❌ FAILED</span>
+            <span class="status-queued">⏳ QUEUED</span>
+            <span class="status-aborted">🛑 ABORTED</span>
+        </div>
+    </section>
+    
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: #d1d5db; margin-bottom: 1rem;">
+            Agent Cards
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="agent-card" style="border-color: #f59e0b;">
+                <div style="font-size:24px">🔍</div>
+                <div style="font-weight:600;">Research Agent</div>
+                <div><span class="status-running">⚡ RUNNING</span></div>
+                <div style="font-size:11px;color:#6b7280">Model: gpt-4</div>
+            </div>
+            
+            <div class="agent-card" style="border-color: #10b981;">
+                <div style="font-size:24px">🧠</div>
+                <div style="font-weight:600;">Strategy Agent</div>
+                <div><span class="status-completed">✅ COMPLETED</span></div>
+                <div style="font-size:11px;color:#6b7280">Model: gpt-4</div>
+            </div>
+            
+            <div class="agent-card" style="border-color: #ef4444;">
+                <div style="font-size:24px">⚖️</div>
+                <div style="font-weight:600;">Critic Agent</div>
+                <div><span class="status-failed">❌ FAILED</span></div>
+                <div style="font-size:11px;color:#6b7280">Model: gpt-4</div>
+            </div>
+        </div>
+    </section>
+    
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: #d1d5db; margin-bottom: 1rem;">
+            Metric Boxes
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+            <div class="metric-box">
+                <div class="metric-value">8/10</div>
+                <div class="metric-label">QA Score</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">12</div>
+                <div class="metric-label">Sources</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">45</div>
+                <div class="metric-label">Tasks</div>
+            </div>
+        </div>
+    </section>
+    
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: #d1d5db; margin-bottom: 1rem;">
+            Verdict Badges
+        </h2>
+        <div style="display: flex; gap: 1rem;">
+            <span class="verdict-badge verdict-APPROVED">APPROVED</span>
+            <span class="verdict-badge verdict-REJECTED">REJECTED</span>
+        </div>
+    </section>
+    
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: #d1d5db; margin-bottom: 1rem;">
+            Log Panel
+        </h2>
+        <div class="log-panel">
+            <div class="log-entry log-INFO">[2025-01-15 10:30:45] [orchestrator] Starting analysis pipeline</div>
+            <div class="log-entry log-INFO">[2025-01-15 10:30:46] [research] Gathering market data</div>
+            <div class="log-entry log-WARN">[2025-01-15 10:30:50] [strategy] Limited data available for sector</div>
+            <div class="log-entry log-INFO">[2025-01-15 10:30:55] [critic] Evaluating strategy quality</div>
+            <div class="log-entry log-ERROR">[2025-01-15 10:31:00] [qa] Validation failed: missing key metrics</div>
+        </div>
+    </section>
+    
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: #d1d5db; margin-bottom: 1rem;">
+            Glassmorphism Card
+        </h2>
+        <div class="glass-card" style="padding: 2rem; max-width: 500px;">
+            <h3 style="color: #8b84ff; margin-top: 0;">
+                Glassmorphism Effect
+            </h3>
+            <p style="color: #9ca3af; line-height: 1.6;">
+                This card demonstrates the glassmorphism design pattern with transparency,
+                backdrop blur, and subtle borders. Hover over it to see the glow effect.
+            </p>
+        </div>
+    </section>
+    
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: #d1d5db; margin-bottom: 1rem;">
+            Buttons
+        </h2>
+        <div style="display: flex; gap: 1rem;">
+            <button class="btn-primary">Primary Button</button>
+            <button class="btn-secondary">Secondary Button</button>
+        </div>
+    </section>
+    
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: #d1d5db; margin-bottom: 1rem;">
+            Animations
+        </h2>
+        <div style="display: flex; gap: 2rem; align-items: center;">
+            <div class="agent-card animate-pulse" style="width: 150px; border-color: #f59e0b;">
+                <div style="text-align: center;">Pulsing</div>
+            </div>
+            <div class="agent-card animate-fadeIn" style="width: 150px; border-color: #60a5fa;">
+                <div style="text-align: center;">Fade In</div>
+            </div>
+        </div>
+    </section>
+    
+    <section>
+        <h2 style="color: #d1d5db; margin-bottom: 1rem;">
+            Color Palette
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem;">
+            <div style="background: #6c63ff; padding: 1rem; border-radius: 10px; text-align: center;">
+                <div style="color: white; font-weight: 600;">Primary</div>
+            </div>
+            <div style="background: #10b981; padding: 1rem; border-radius: 10px; text-align: center;">
+                <div style="color: white; font-weight: 600;">Success</div>
+            </div>
+            <div style="background: #f59e0b; padding: 1rem; border-radius: 10px; text-align: center;">
+                <div style="color: white; font-weight: 600;">Warning</div>
+            </div>
+            <div style="background: #ef4444; padding: 1rem; border-radius: 10px; text-align: center;">
+                <div style="color: white; font-weight: 600;">Error</div>
+            </div>
+            <div style="background: #60a5fa; padding: 1rem; border-radius: 10px; text-align: center;">
+                <div style="color: white; font-weight: 600;">Info</div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

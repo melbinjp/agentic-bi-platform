@@ -1,0 +1,48 @@
+# Environment
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# Database
+*.db
+*.sqlite3
+chroma_data/
+test_smoke.db
+test_smoke_async.db
+test_agent_in.db
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Local planning scratch files
+*.md
+!README.md
+
+# Kiro
+.kiro/
+
